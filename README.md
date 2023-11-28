@@ -1,4 +1,4 @@
-# Uranus
+# Urynus
 A tool for producing source code from markdown code blocks.
 
 Following the language with a # marks that block as an example or snippet. This code will not be included in the compiled file - this is useful for breaking down code into code bit by bit in documentation.
