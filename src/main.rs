@@ -37,13 +37,4 @@ fn extract_code_blocks(path: &str) -> Result<Vec<CodeBlock>, io::Error> {
 
 fn main() {
     let file_path = "README.md";
-
-    match extract_code_blocks(file_path) {
-        Ok(blocks) => {
-            for block in blocks {
-                println!("{:?}", block);
-            }
-        }
-        Err(err) => eprintln!("Error: {}", err),
-    }
 }
