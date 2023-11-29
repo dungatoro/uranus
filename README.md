@@ -2,7 +2,7 @@
 A tool for producing source code from markdown code blocks.
 
 Following the language with a # marks that block as an example or snippet. This code will not be included in the compiled file - this is useful for breaking down code into code bit by bit in documentation.
-```python dASFAF\SADF
+```python #fib
 def fib(x):
     if x < 2: 
         return 1
