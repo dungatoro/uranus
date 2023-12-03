@@ -1,53 +1,48 @@
--- Function to read a file and return its content
-function read_file(file_path)
-    local file = io.open(file_path, "r")
+local function read_file(path)
+    local file = io.open(path, "r")
     if file then
-        local content = file:read("*all")
+        local text = file:read("*all")
         file:close()
-        return content
+        return text
     else
         return nil
     end
 end
 
--- Function to extract code blocks from Markdown using regex
-function extract_code_blocks(markdown_content)
-    local code_blocks = {}
-    local pattern = "```%s*([^%s]+)%s*([^%s]*)%s*\n(.-)```"
-    
-    for lang, identifier, body in markdown_content:gmatch(pattern) do
-        local code_block = {
+local function get_blocks(text)
+    local blocks = {}
+    local regex = "```%s*([^%s]+)%s*([^%s]*)%s*\n(.-)```"
+
+    for lang, id, body in text:gmatch(regex) do
+        local block = {
             language = lang,
-            identifier = identifier,
+            id = id,
             body = body
         }
-        table.insert(code_blocks, code_block)
+        table.insert(blocks, block)
     end
-    
-    return code_blocks
+
+    return blocks
 end
 
--- Main function
-function main()
-    local file_path = "README.md"
-    local markdown_content = read_file(file_path)
+local function main()
+    local path = "README.md"
+    local text = read_file(path)
 
-    if markdown_content then
-        local code_blocks = extract_code_blocks(markdown_content)
+    if text then
+        local blocks = get_blocks(text)
 
-        -- Print the extracted code blocks
-        for _, block in ipairs(code_blocks) do
+        for _, block in ipairs(blocks) do
             print("Language:", block.language)
-            print("Identifier:", block.identifier)
+            print("Identifier:", block.id)
             print("Body:")
             print(block.body)
             print("------------------------------")
         end
     else
-        print("Error reading the file.")
+        print("Could not read file:", path)
     end
 end
 
--- Run the main function
 main()
 
