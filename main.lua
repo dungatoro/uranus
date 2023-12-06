@@ -25,10 +25,31 @@ local function get_blocks(text)
     return blocks
 end
 
+local function find_snippet(blocks, id)
+    for _, block in ipairs(blocks) do
+        if block.id == id then
+            return block
+        end
+    end
+
+    return nil
+end
+
 local function main()
     local path = "README.md"
     local text = read_file(path)
+    local blocks = get_blocks(text)
 
+    local snippet = find_snippet(blocks, "#factorial")
+    if snippet then
+        print("Language:", snippet.language)
+        print("Identifier:", snippet.id)
+        print("Body:")
+        print(snippet.body)
+        print("------------------------------")
+    end
+
+    --[[
     if text then
         local blocks = get_blocks(text)
 
@@ -42,6 +63,7 @@ local function main()
     else
         print("Could not read file:", path)
     end
+    --]]
 end
 
 main()
