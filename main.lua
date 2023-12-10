@@ -36,10 +36,10 @@ local function find_snippet(blocks, id)
 end
 
 local function run_snippet(path, id)
-    local config = require("cfg")
-
+    require("cfg")
     local blocks = get_blocks( read_file(path))
     local snippet = find_snippet(blocks, id)
+
     if snippet then
         os.execute(SNIPPETS[snippet.lang])
     end
@@ -49,7 +49,7 @@ local function main()
 
     local mode = arg[1]
     local path = arg[2]
-    local snippet_id = ""
+    local snippet_id
 
     if mode == "snip" then
         snippet_id = arg[3]
