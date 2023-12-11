@@ -5,9 +5,11 @@ Following the language with a # marks that block as an example or snippet. This 
 ```python #fib
 def fib(x):
     if x < 2: 
-        return 1
+        return x
     else:
         return fib(x-1) + fib(x-2)
+
+print( fib(10))
 ```
 Following # with some sort of identifier allows that snippet to be compiled in isolation and ran for testing small snippets.
 ```haskell #factorial
