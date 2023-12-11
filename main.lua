@@ -35,23 +35,21 @@ local function find_snippet(blocks, id)
     return nil
 end
 
-local function new_snippet(block)
-    local file_name = SNIPPETS[block.lang].name
-    local file = io.open(file_name, "w")
-    if file then
-        file:write(block.body)
-        file:close()
-    end
-end
-
 local function run_snippet(path, id)
     require("cfg")
     local blocks = get_blocks(read_file(path))
     local block = find_snippet(blocks, id)
 
     if block then
-        new_snippet(block)
+        local file_name = SNIPPETS[block.lang].name
+        local file = io.open(file_name, "w")
+        if file then
+            file:write(block.body)
+            file:close()
+        end
+
         os.execute(SNIPPETS[block.lang].script)
+        os.remove(file_name)
     end
 end
 
