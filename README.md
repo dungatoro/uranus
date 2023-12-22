@@ -1,7 +1,7 @@
 # Urynus
 Urynus is a literate programming tool; it allows code to be compiled or ran from
-a markdown document. It is heavily inspired by Emacs's [org mode]
-(https://orgmode.org/).
+a markdown document. It is heavily inspired by Emacs's 
+[org mode](https://orgmode.org/).
 
 ## Features
 - Building source files from literate document
