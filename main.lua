@@ -13,10 +13,10 @@ local function get_blocks(text)
     local blocks = {}
     local regex = "```%s*([^%s]+)%s*([^%s]*)%s*\n(.-)```"
 
-    for lang, id, body in text:gmatch(regex) do
+    for lang, tag, body in text:gmatch(regex) do
         local block = {
             lang = lang,
-            id = id,
+            tag = tag,
             body = body
         }
         table.insert(blocks, block)
@@ -25,9 +25,9 @@ local function get_blocks(text)
     return blocks
 end
 
-local function find_snippet(blocks, id)
+local function find_snippet(blocks, tag)
     for _, block in ipairs(blocks) do
-        if block.id == "#" .. id then
+        if block.tag == "#" .. tag then
             return block
         end
     end
@@ -35,10 +35,10 @@ local function find_snippet(blocks, id)
     return nil
 end
 
-local function run_snippet(path, id)
+local function run_snippet(path, tag)
     require("cfg")
     local blocks = get_blocks(read_file(path))
-    local block = find_snippet(blocks, id)
+    local block = find_snippet(blocks, tag)
 
     if block then
         local file_name = SNIPPETS[block.lang].name
@@ -53,14 +53,29 @@ local function run_snippet(path, id)
     end
 end
 
+local function tangle_files(path)
+    local blocks = get_blocks(read_file(path))
+    for _, block in ipairs(blocks) do
+        if block.tag[1] ~= '#' then
+            local file = io.open(block.tag, "a")
+            if file then
+                file:write("\n" .. block.body)
+                file:close()
+            end
+        end
+    end
+end
+
 local function main()
     local mode = arg[1]
     local path = arg[2]
-    local snippet_id
+    local snippet_tag
 
     if mode == "snip" then
-        snippet_id = arg[3]
-        run_snippet(path, snippet_id)
+        snippet_tag = arg[3]
+        run_snippet(path, snippet_tag)
+    elseif mode == "tangle" then
+        tangle_files(path)
     end
 end
 
