@@ -4,13 +4,29 @@ a markdown document. It is heavily inspired by Emacs's
 [org mode](https://orgmode.org/).
 
 ## Features
-- Building source files from literate document
+- Building source files from a literate document
 - Running snippets in isolation
 - Rearranging code blocks
 - Compilation to multiple files
 
+## Urynus Format
 
-## Extensibility
-Urynus is written entirely in lua, a simple and extensible language often 
-embedded into other applications. This should hopefully make it easier for 
-creating Urynus plugins for other applications.
+Urynus works with traditional markdown codeblocks within triple backticks, not
+triple `~`. On the same line, urynus expects a language name and either a target 
+file or tag.
+
+~~~
+```python main.py
+def my_function(a, b):
+    ...
+```
+~~~
+
+Here is an example of a tagged snippet which will be ignored at compilation.
+~~~
+```python #fib
+def fib(a, b):
+    ...
+```
+~~~
+
