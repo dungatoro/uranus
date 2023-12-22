@@ -36,7 +36,7 @@ local function find_snippet(blocks, tag)
 end
 
 local function run_snippet(path, tag)
-    require("cfg")
+    require("urynus_config")
     local blocks = get_blocks(read_file(path))
     local block = find_snippet(blocks, tag)
 
