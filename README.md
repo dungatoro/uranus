@@ -1,19 +1,16 @@
 # Urynus
-A tool for producing source code from markdown code blocks.
+Urynus is a literate programming tool; it allows code to be compiled or ran from
+a markdown document. It is heavily inspired by Emacs's (org mode)
+[https://orgmode.org/].
 
-Following the language with a # marks that block as an example or snippet. This code will not be included in the compiled file - this is useful for breaking down code into code bit by bit in documentation.
-```python #fib
-def fib(x):
-    if x < 2: 
-        return x
-    else:
-        return fib(x-1) + fib(x-2)
+## Features
+- Building source files from literate document
+- Running snippets in isolation
+- Rearranging code blocks
+- Compilation to multiple files
 
-print( fib(10))
-```
-Following # with some sort of identifier allows that snippet to be compiled in isolation and ran for testing small snippets.
-```haskell #factorial
-fact 0 = 1
-fact n = n * fact (n-1)
-```
 
+## Extensibility
+Urynus is written entirely in lua, a simple and extensible language often 
+embedded into other applications. This should hopefully make it easier for 
+creating Urynus plugins for other applications.
