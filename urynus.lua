@@ -56,7 +56,7 @@ end
 local function tangle_files(path)
     local blocks = get_blocks(read_file(path))
     for _, block in ipairs(blocks) do
-        if block.tag[1] ~= '#' then
+        if block.tag:sub(1,1) ~= "#" then
             local file = io.open(block.tag, "a")
             if file then
                 file:write("\n" .. block.body)
