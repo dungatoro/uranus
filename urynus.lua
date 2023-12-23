@@ -1,3 +1,5 @@
+#!/usr/bin/lua
+
 local function read_file(path)
     local file = io.open(path, "r")
     if file then
@@ -59,23 +61,36 @@ local function tangle_files(path)
         if block.tag:sub(1,1) ~= "#" then
             local file = io.open(block.tag, "a")
             if file then
-                file:write("\n" .. block.body)
+                file:write(block.body .. "\n")
                 file:close()
             end
         end
     end
 end
 
+local function init_project()
+    local file = io.open("urynus_config.lua", "w")
+    if file then
+        file:write(
+[[SNIPPETS = {
+    ["python"] = {
+        name   = "snippet.py",
+        script = "python3 snippet.py",
+    }
+}]])
+        file:close()
+    end
+end
+
 local function main()
     local mode = arg[1]
-    local path = arg[2]
-    local snippet_tag
 
     if mode == "snip" then
-        snippet_tag = arg[3]
-        run_snippet(path, snippet_tag)
+        run_snippet(arg[2], arg[3])
     elseif mode == "tangle" then
-        tangle_files(path)
+        tangle_files(arg[2])
+    elseif mode == "init" then
+        init_project()
     end
 end
 

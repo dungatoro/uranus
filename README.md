@@ -6,7 +6,6 @@ a markdown document. It is heavily inspired by Emacs's
 ## Features
 - Building source files from a literate document
 - Running snippets in isolation
-- Rearranging code blocks
 - Compilation to multiple files
 
 ## Urynus Format
