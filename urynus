@@ -99,6 +99,8 @@ local function main()
         tangle_files(arg[2])
     elseif mode == "init" then
         init_project()
+    else
+        print("Not an accepted command. Try init, snip, or tangle")
     end
 end
 
