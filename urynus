@@ -1,107 +1,45 @@
-#!/usr/bin/lua
+#!/usr/bin/perl
 
-local function read_file(path)
-    local file = io.open(path, "r")
-    if file then
-        local text = file:read("*all")
-        file:close()
-        return text
-    else
-        return nil
-    end
-end
+open FH, '<', $ARGV[1] or die $!;
+    my @matches = do { local $/; <FH> } =~ /```(.*?)```/gs;
+close FH;
 
-local function get_blocks(text)
-    local blocks = {}
-    local regex = "```%s*([^%s]+)%s*([^%s]*)%s*\n(.-)```"
+my @blocks;
+foreach $match (@matches) {
+    push @blocks, split(' ', $match, 3);
+}
 
-    for lang, tag, body in text:gmatch(regex) do
-        local block = {
-            lang = lang,
-            tag = tag,
-            body = body
-        }
-        table.insert(blocks, block)
-    end
-
-    return blocks
-end
-
-local function find_snippet(blocks, tag)
-    for _, block in ipairs(blocks) do
-        if block.tag == "#" .. tag then
-            return block
-        end
-    end
-
-    return nil
-end
-
-local function run_snippet(path, tag)
-    require("urynus_config")
-    local blocks = get_blocks(read_file(path))
-    local block = find_snippet(blocks, tag)
-
-    if block then
-        local file_name = SNIPPETS[block.lang].name
-        local file = io.open(file_name, "w")
-        if file then
-            file:write(block.body)
-            file:close()
-        end
-
-        os.execute(SNIPPETS[block.lang].script)
-        os.remove(file_name)
-    end
-end
-
-local function tangle_files(path)
-    local blocks = get_blocks(read_file(path))
-    local files = {}
-    for _, block in ipairs(blocks) do
-        local file
-        if block.tag:sub(1,1) ~= "#" then
-            if files[block.tag] then
-                file = io.open(block.tag, "a")
-            else
-                file = io.open(block.tag, "w")
-                files[block.tag] = true
-            end
-        end
-
-        if file then
-            file:write(block.body .. "\n")
-            file:close()
-        end
-    end
-end
-
-local function init_project()
-    local file = io.open("urynus_config.lua", "w")
-    if file then
-        file:write(
-[[SNIPPETS = {
-    ["python"] = {
-        name   = "snippet.py",
-        script = "python3 snippet.py",
+if ($ARGV[0] eq 'tangle') {
+    my @opened;
+    for (my $i = 0; $i < @blocks; $i += 3) {
+        my ($dest, $code) = @blocks[$i+1..$i+2];
+    
+        if (substr($dest, 0, 1) ne '#') {
+            if (grep {$_ == $dest} @opened) {
+                open FH, '>>', $dest or die $!;
+            } else {
+                push @opened, $dest;
+                open FH, '>', $dest or die $!;
+            }
+            print FH "$code\n";
+            close FH;
+        } 
     }
-}]])
-        file:close()
-    end
-end
 
-local function main()
-    local mode = arg[1]
+} elsif ($ARGV[0] eq 'snip') {
+    my $i = grep { $blocks[$_] eq "$ARGV[2]" } 0..$#blocks;
+    open FH, '>', 'snippet' or die $!;
+        print FH "$blocks[$i+1]\n";
+    close FH;
+    system "bash urynus_config $blocks[$i-1]";
+    unlink 'snippet'
 
-    if mode == "snip" then
-        run_snippet(arg[2], arg[3])
-    elseif mode == "tangle" then
-        tangle_files(arg[2])
-    elseif mode == "init" then
-        init_project()
-    else
-        print("Not an accepted command. Try init, snip, or tangle")
-    end
-end
-
-main()
+} elsif ($ARGV[0] eq 'init') {
+    open FH, '>', 'urynus_config' or die $!;
+    print FH '
+#!/bin/bash 
+case $1 in
+    python) python3 snippet ;;
+esac';
+    close FH;
+}
