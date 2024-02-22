@@ -1,0 +1,9 @@
+#!/usr/bin/raku
+
+multi MAIN ( "tangle", Str $path ) {
+    my @matches = slurp($path).match(/'```'(.*?)'```'/, :g);
+    my @blocks  = map {substr($_,3,$_.chars-6)}, @matches;
+    for @blocks -> $m {
+        say $m;
+    }
+}
