@@ -17,15 +17,20 @@ file or tag.
 ~~~
 ```python main.py
 def my_function(a, b):
-    ...
+    # garbage function
+    # just needs multiple lines
 ```
 ~~~
 
 Here is an example of a tagged snippet which will be ignored at compilation.
 ~~~
 ```python #fib
-def fib(a, b):
-    ...
+def fib(n):
+    if n <= 1:
+        return n
+    else:
+        return fib(n-1) + fib(n-2)
+print(fib(8))
 ```
 ~~~
 

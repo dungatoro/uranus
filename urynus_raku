@@ -1,9 +1,56 @@
 #!/usr/bin/raku
 
+sub get_blocks ( Str $path ) {
+    map {substr($_,3,$_.chars-6)}, slurp($path).match(/'```'(.*?)'```'/, :g)
+}
+
 multi MAIN ( "tangle", Str $path ) {
-    my @matches = slurp($path).match(/'```'(.*?)'```'/, :g);
-    my @blocks  = map {substr($_,3,$_.chars-6)}, @matches;
-    for @blocks -> $m {
-        say $m;
+    my @blocks = get_blocks $path;
+    my @opened = ();
+
+    for @blocks -> $block {
+        my @lines = $block.lines;
+        my ($lang, $file) = @lines.shift.words;
+        my $fh;
+        if substr($file, 0, 1) eq "#" { next; } 
+
+        if $file ~~ any(@opened) {
+            $fh = open $file, :a;
+            @opened.append($file);
+        } else {
+            $fh = open $file, :w;
+        }
+
+        for @lines -> $line {
+            $fh.print("$line\n");
+        } 
+
+        $fh.close;
     }
+}
+
+multi MAIN ( "snip", Str $path, Str $name ) {
+    my @blocks = get_blocks $path;
+    my @files = map {$_.lines.shift.words[1]}, @blocks;
+    my $idx = @files.first("#$name", :k);
+
+    my $fh = open 'snippet', :w;
+    for @blocks[$idx].lines -> $line {
+        $fh.print("$line\n");
+    } 
+
+    my $lang = @blocks[$idx].lines.shift.words[0];
+    shell "urynus_config $lang";
+    unlink 'snippet';
+    $fh.close;
+}
+
+multi MAIN ( "init" ) {
+    my $fh = open 'urynus_config', :a;
+    $fh.print('
+#!/bin/bash 
+case $1 in
+    python) python3 snippet ;;
+esac');
+    $fh.close;
 }
