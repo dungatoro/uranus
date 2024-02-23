@@ -1,4 +1,3 @@
-
 #!/bin/bash 
 case $1 in
     python) python3 snippet ;;

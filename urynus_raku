@@ -4,7 +4,7 @@ sub get_blocks ( Str $path ) {
     map {substr($_,3,$_.chars-6)}, slurp($path).match(/'```'(.*?)'```'/, :g)
 }
 
-multi MAIN ( "tangle", Str $path ) {
+multi MAIN ( 'tangle', Str $path ) {
     my @blocks = get_blocks $path;
     my @opened = ();
 
@@ -12,7 +12,7 @@ multi MAIN ( "tangle", Str $path ) {
         my @lines = $block.lines;
         my ($lang, $file) = @lines.shift.words;
         my $fh;
-        if substr($file, 0, 1) eq "#" { next; } 
+        if substr($file, 0, 1) eq '#' { next; } # skip snippets
 
         if $file ~~ any(@opened) {
             @opened.append($file);
@@ -29,23 +29,28 @@ multi MAIN ( "tangle", Str $path ) {
     }
 }
 
-multi MAIN ( "snip", Str $path, Str $name ) {
+multi MAIN ( 'snip', Str $path, Str $name ) {
     my @blocks = get_blocks $path;
-    my @files = map {$_.lines.shift.words[1]}, @blocks;
-    my $idx = @files.first("#$name", :k);
+    for @blocks -> $block {
+        my @lines = $block.lines;
+        my ($lang, $file) = @lines.shift.words;
 
-    my $fh = open 'snippet', :w;
-    for @blocks[$idx].lines -> $line {
-        $fh.print("$line\n");
-    } 
+        if $file eq "#$name" {
+            my $fh = open 'snippet', :w;
+            for @lines -> $line {
+                $fh.print("$line\n");
+            } 
 
-    my $lang = @blocks[$idx].lines.shift.words[0];
-    shell "urynus_config $lang";
-    unlink 'snippet';
-    $fh.close;
+            shell "bash urynus_config $lang";
+            unlink 'snippet';
+            $fh.close;
+
+            last;
+        } 
+    }
 }
 
-multi MAIN ( "init" ) {
+multi MAIN ( 'init' ) {
     my $fh = open 'urynus_config', :a;
     $fh.print('
 #!/bin/bash 
