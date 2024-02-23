@@ -1,45 +1,60 @@
-#!/usr/bin/perl
+#!/usr/bin/raku
 
-open FH, '<', $ARGV[1] or die $!;
-    my @matches = do { local $/; <FH> } =~ /```(.*?)```/gs;
-close FH;
-
-my @blocks;
-foreach $match (@matches) {
-    push @blocks, split(' ', $match, 3);
+sub get_blocks ( Str $path ) {
+    map {substr($_,3,$_.chars-6)}, slurp($path).match(/'```'(.*?)'```'/, :g)
 }
 
-if ($ARGV[0] eq 'tangle') {
-    my @opened;
-    for (my $i = 0; $i < @blocks; $i += 3) {
-        my ($dest, $code) = @blocks[$i+1..$i+2];
-    
-        if (substr($dest, 0, 1) ne '#') {
-            if (grep {$_ == $dest} @opened) {
-                open FH, '>>', $dest or die $!;
-            } else {
-                push @opened, $dest;
-                open FH, '>', $dest or die $!;
-            }
-            print FH "$code\n";
-            close FH;
+multi MAIN ( 'tangle', Str $path ) {
+    my @blocks = get_blocks $path;
+    my @opened = ();
+
+    for @blocks -> $block {
+        my @lines = $block.lines;
+        my ($lang, $file) = @lines.shift.words;
+        my $fh;
+        if substr($file, 0, 1) eq '#' { next; } # skip snippets
+
+        if $file ~~ any(@opened) {
+            @opened.append($file);
+            $fh = open $file, :a;
+        } else {
+            $fh = open $file, :w;
+        }
+
+        for @lines -> $line {
+            $fh.print("$line\n");
+        } 
+
+        $fh.close;
+    }
+}
+
+multi MAIN ( 'snip', Str $path, Str $name ) {
+    my @blocks = get_blocks $path;
+    for @blocks -> $block {
+        my @lines = $block.lines;
+        my ($lang, $file) = @lines.shift.words;
+
+        if $file eq "#$name" {
+            my $fh = open 'snippet', :w;
+            for @lines -> $line {
+                $fh.print("$line\n");
+            } 
+            $fh.close;
+            
+            shell "bash urynus_config $lang";
+            unlink 'snippet';
+            last;
         } 
     }
+}
 
-} elsif ($ARGV[0] eq 'snip') {
-    my $i = grep { $blocks[$_] eq "$ARGV[2]" } 0..$#blocks;
-    open FH, '>', 'snippet' or die $!;
-        print FH "$blocks[$i+1]\n";
-    close FH;
-    system "bash urynus_config $blocks[$i-1]";
-    unlink 'snippet'
-
-} elsif ($ARGV[0] eq 'init') {
-    open FH, '>', 'urynus_config' or die $!;
-    print FH '
+multi MAIN ( 'init' ) {
+    my $fh = open 'urynus_config', :a;
+    $fh.print('
 #!/bin/bash 
 case $1 in
     python) python3 snippet ;;
-esac';
-    close FH;
+esac');
+    $fh.close;
 }
