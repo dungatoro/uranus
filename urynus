@@ -6,18 +6,19 @@ sub get_blocks ( Str $path ) {
 
 multi MAIN ( 'tangle', Str $path ) {
     my @blocks = get_blocks $path;
-    my @opened = ();
+    my @opened;
 
     for @blocks -> $block {
+        say @opened;
         my @lines = $block.lines;
         my ($lang, $file) = @lines.shift.words;
         my $fh;
         if substr($file, 0, 1) eq '#' { next; } # skip snippets
 
         if $file ~~ any(@opened) {
-            @opened.append($file);
             $fh = open $file, :a;
         } else {
+            @opened.push($file);
             $fh = open $file, :w;
         }
 
