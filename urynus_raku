@@ -40,11 +40,10 @@ multi MAIN ( 'snip', Str $path, Str $name ) {
             for @lines -> $line {
                 $fh.print("$line\n");
             } 
-
+            $fh.close;
+            
             shell "bash urynus_config $lang";
             unlink 'snippet';
-            $fh.close;
-
             last;
         } 
     }
