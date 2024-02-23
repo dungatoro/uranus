@@ -15,8 +15,8 @@ multi MAIN ( "tangle", Str $path ) {
         if substr($file, 0, 1) eq "#" { next; } 
 
         if $file ~~ any(@opened) {
-            $fh = open $file, :a;
             @opened.append($file);
+            $fh = open $file, :a;
         } else {
             $fh = open $file, :w;
         }
