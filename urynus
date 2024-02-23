@@ -9,12 +9,11 @@ multi MAIN ( 'tangle', Str $path ) {
     my @opened;
 
     for @blocks -> $block {
-        say @opened;
         my @lines = $block.lines;
         my ($lang, $file) = @lines.shift.words;
+
         my $fh;
         if substr($file, 0, 1) eq '#' { next; } # skip snippets
-
         if $file ~~ any(@opened) {
             $fh = open $file, :a;
         } else {
@@ -25,7 +24,7 @@ multi MAIN ( 'tangle', Str $path ) {
         for @lines -> $line {
             $fh.print("$line\n");
         } 
-
+        $fh.print("\n");
         $fh.close;
     }
 }
