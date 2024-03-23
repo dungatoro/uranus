@@ -20,10 +20,8 @@ multi MAIN ( 'tangle', Str $path ) {
             @opened.push($file);
             $fh = open $file, :w;
         }
-
-        for @lines -> $line {
-            $fh.print("$line\n");
-        } 
+        
+        $fh.print("$_\n") for @lines;
         $fh.print("\n");
         $fh.close;
     }
@@ -37,9 +35,7 @@ multi MAIN ( 'snip', Str $path, Str $name ) {
 
         if $file eq "#$name" {
             my $fh = open 'snippet', :w;
-            for @lines -> $line {
-                $fh.print("$line\n");
-            } 
+            $fh.print("$_\n") for @lines;
             $fh.close;
             
             shell "bash urynus_config $lang";
