@@ -13,7 +13,7 @@ multi MAIN ( 'tangle', Str $path ) {
         my ($lang, $file) = @lines.shift.words;
 
         my $fh;
-        if substr($file, 0, 1) eq '#' { next; } # skip snippets
+        next if substr($file, 0, 1) eq '#'; # skip snippets
         if $file ~~ any(@opened) {
             $fh = open $file, :a;
         } else {
